@@ -11,8 +11,8 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@db/*": [
-        "src/db/*"
+      "@database/*": [
+        "src/database/*"
       ],
       "@entities/*": [
         "src/entities/*"
