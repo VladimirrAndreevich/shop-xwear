@@ -10,15 +10,26 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  // Create new product
-  public async createOne(productData: any) {
+  async createOne(productData: any): Promise<Product[] | undefined> {
     const newProduct = this.productRepository.create({
       ...productData,
     });
     return await this.productRepository.save(newProduct);
   }
 
-  public async getAll() {
+  async getAll(): Promise<Product[]> {
     return await this.productRepository.find();
+  }
+
+  async getOneData(id: number): Promise<Product> {
+    return await this.productRepository.findOne({ where: { id } });
+  }
+
+  async updateProductData(id: number, body: any) {
+    return await this.productRepository.update({ id }, body);
+  }
+
+  async deleteProduct(id: number) {
+    return await this.productRepository.delete(id);
   }
 }
