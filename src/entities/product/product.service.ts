@@ -10,7 +10,7 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async createOne(productData: any): Promise<Product[] | undefined> {
+  async createOne(productData: any) {
     const newProduct = this.productRepository.create({
       ...productData,
     });

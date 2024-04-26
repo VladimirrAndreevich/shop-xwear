@@ -10,22 +10,37 @@ import {
   Post,
   Put,
   Res,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common";
 import { Response } from "express";
 import { ProductService } from "./product.service";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { getMulterOptions, renameUploadedFile } from "@helpers/fileUploader";
+import { PRODUCTS_IMAGES_FOLDER_PATH } from "@consts/storagePaths";
 
 @Controller("products")
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post("/")
-  @HttpCode(HttpStatus.OK)
-  async createProduct(@Body() body: any, @Res() res: Response) {
-    await this.productService.createOne(body);
-
-    return res.send({
-      status: "ok",
+  @HttpCode(201)
+  @UseInterceptors(
+    FileInterceptor("image", getMulterOptions("images/products")),
+  )
+  async createProduct(
+    @Body() body: any,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    const renamedFilename = renameUploadedFile(
+      image.filename,
+      PRODUCTS_IMAGES_FOLDER_PATH,
+    );
+    await this.productService.createOne({
+      ...body,
+      image: renamedFilename,
     });
+    return { status: "ok" };
   }
 
   @Get("/")
