@@ -61,4 +61,10 @@ export class UserService {
   async updateOneData(id: number, body: UpdateUserDto) {
     return await this.userRepository.update({ id }, this.filterFields(body));
   }
+
+  async getUserByLoginOrEmail(loginOrEmail: string) {
+    return await this.userRepository.findOne({
+      where: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    });
+  }
 }

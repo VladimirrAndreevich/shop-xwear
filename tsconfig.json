@@ -22,6 +22,9 @@
       ],
       "@consts/*": [
         "src/consts/*"
+      ],
+      "@services/*": [
+        "src/services/*"
       ]
     },
     "incremental": true,
