@@ -3,8 +3,17 @@ import { ConfigModule } from "./config.module";
 import { TypeOrmModule } from "@database/typeorm.module";
 import { ProductModule } from "@entities/product/product.module";
 import { UserModule } from "@entities/user/user.module";
+import { AdminModule } from "@entities/admin/admin.module";
+import { RoleModule } from "@entities/role/role.module";
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule, UserModule, ProductModule],
+  imports: [
+    ConfigModule,
+    TypeOrmModule,
+    AdminModule,
+    RoleModule,
+    UserModule,
+    ProductModule,
+  ],
 })
 export class AppModule {}

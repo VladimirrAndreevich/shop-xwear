@@ -18,14 +18,14 @@ import { UpdateUserDto } from "./dto/updateUser.dto";
 import { LoginUserDto } from "./dto/loginUser.dto";
 import { compare } from "bcrypt";
 import { ForbiddenException } from "@helpers/exceptions";
-import { JwtService } from "@services/jwt/jwt.service";
-import { JwtAuthGuard } from "@services/jwt/jwt-auth.guard";
+import { AuthService } from "@services/auth/auth.service";
+import { JwtAuthGuard } from "src/guards/jwt-auth.guard";
 
 @Controller("users")
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
   ) {}
 
   @Post("/register")
@@ -52,7 +52,7 @@ export class UserController {
 
     if (!isPasswordMatch) throw new ForbiddenException();
 
-    const jwt = await this.jwtService.setSession({
+    const jwt = await this.authService.setSession({
       userId: foundUser.id,
     });
 

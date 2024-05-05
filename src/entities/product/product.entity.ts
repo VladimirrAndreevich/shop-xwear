@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { E_Type } from "./product.enum";
 
 @Entity("products")
 export class Product {
@@ -19,4 +20,7 @@ export class Product {
 
   @Column({ name: "image", type: "varchar" })
   image: string;
+
+  @Column({ name: "type", type: "enum", enum: E_Type })
+  type: E_Type;
 }
