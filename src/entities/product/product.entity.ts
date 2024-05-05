@@ -15,7 +15,7 @@ export class Product {
   @Column({ name: "price", type: "int" })
   price: number;
 
-  @Column({ name: "price_discounted", type: "int" })
+  @Column({ name: "price_discounted", type: "int", nullable: true })
   priceDiscounted: number;
 
   @Column({ name: "image", type: "varchar" })
@@ -23,4 +23,7 @@ export class Product {
 
   @Column({ name: "type", type: "enum", enum: E_Type })
   type: E_Type;
+
+  @Column({ name: "is_favorite", default: false })
+  isFavorite: boolean;
 }

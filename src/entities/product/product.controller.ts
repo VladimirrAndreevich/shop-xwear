@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -18,6 +19,7 @@ import { ProductService } from "./product.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { getMulterOptions, renameUploadedFile } from "@helpers/fileUploader";
 import { PRODUCTS_IMAGES_FOLDER_PATH } from "@consts/storagePaths";
+import { E_Type } from "./product.enum";
 
 @Controller("products")
 export class ProductController {
@@ -38,6 +40,7 @@ export class ProductController {
     );
     await this.productService.createOne({
       ...body,
+      isFavorite: body.isFavorite === "true" ? true : false,
       image: renamedFilename,
     });
     return { status: "ok" };
@@ -53,6 +56,45 @@ export class ProductController {
       data: products,
     });
   }
+
+  @Get("/favorites")
+  @HttpCode(HttpStatus.OK)
+  async getAllFavoritesProducts(@Res() res: Response) {
+    const products = await this.productService.getAllFavorites();
+
+    return res.send({
+      status: "ok",
+      data: products,
+    });
+  }
+
+  @Get("/by-type?")
+  @HttpCode(HttpStatus.OK)
+  async getAllProductsByType(
+    @Query("type") type: E_Type,
+    @Res() res: Response,
+  ) {
+    const products = await this.productService.getAllByType(type);
+
+    return res.send({
+      status: "ok",
+      data: {
+        products: products[0],
+        amount: products[1],
+      },
+    });
+  }
+
+  // @Get("/favorites")
+  // @HttpCode(HttpStatus.OK)
+  // async getAllProducts(@Res() res: Response) {
+  //   const products = await this.productService.getAll();
+
+  //   return res.send({
+  //     status: "ok",
+  //     data: products,
+  //   });
+  // }
 
   @Get("/:id")
   @HttpCode(HttpStatus.OK)
