@@ -67,6 +67,13 @@ export class UserController {
     return { status: "ok", data: users };
   }
 
+  @Get("/check-auth")
+  @HttpCode(HttpStatus.ACCEPTED)
+  @UseGuards(JwtAuthGuard)
+  async checkAuth() {
+    return { status: "ok" };
+  }
+
   @Get("/:id")
   @HttpCode(HttpStatus.OK)
   async getUserById(@Param("id", ParseIntPipe) id: number) {

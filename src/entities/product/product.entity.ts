@@ -18,8 +18,11 @@ export class Product {
   @Column({ name: "price_discounted", type: "int", nullable: true })
   priceDiscounted: number;
 
-  @Column({ name: "image", type: "varchar" })
-  image: string;
+  @Column({ name: "main_image", type: "varchar" })
+  mainImage: string;
+
+  @Column({ name: "images", type: "varchar", array: true, nullable: true })
+  images: string[];
 
   @Column({ name: "type", type: "enum", enum: E_Type })
   type: E_Type;
