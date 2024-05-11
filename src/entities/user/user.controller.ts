@@ -20,19 +20,43 @@ import { compare } from "bcrypt";
 import { ForbiddenException } from "@helpers/exceptions";
 import { AuthService } from "@services/auth/auth.service";
 import { JwtAuthGuard } from "src/guards/jwt-auth.guard";
+import { CartService } from "@entities/cart/cart.service";
 
 @Controller("users")
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
+    private readonly cartService: CartService,
   ) {}
+
+  @Get("/:userId/cart")
+  async getUserCart(@Param("userId") userId: number) {
+    console.log(userId);
+    const userCart = await this.cartService.getUserCart(userId);
+    return {
+      status: "ok",
+      data: {
+        userCart,
+      },
+    };
+  }
 
   @Post("/register")
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() body: RegisterUserDto) {
-    await this.userService.createOne(body);
-    return { status: "ok", data: null };
+    const user = await this.userService.createOne(body);
+
+    const jwt = await this.authService.setSession({
+      userId: user.id,
+    });
+
+    return {
+      status: "ok",
+      data: {
+        accessToken: jwt,
+      },
+    };
   }
 
   @Post("/login")
