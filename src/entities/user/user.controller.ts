@@ -23,6 +23,7 @@ import { JwtAuthGuard } from "src/guards/jwt-auth.guard";
 import { CartItemService } from "@entities/cartItem/cartItem.service";
 import { ProductService } from "@entities/product/product.service";
 import { CreateCartItemDto } from "@entities/cartItem/dto/createCartItem.dto";
+import { RemoveCartItemDto } from "@entities/cartItem/dto/removeCartItem.dto";
 @Controller("users")
 export class UserController {
   constructor(
@@ -47,9 +48,40 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   async addToCart(
     @Param("userId") userId: number,
-    @Body() body: CreateCartItemDto,
+    @Body()
+    body: {
+      productId: number;
+      createCartItemData: CreateCartItemDto;
+    },
   ) {
-    await this.cartItemService.createOne(body, userId, 24);
+    const { createCartItemData, productId } = body;
+    await this.cartItemService.createOne(
+      { size: createCartItemData.size },
+      userId,
+      productId,
+    );
+
+    return {
+      status: "ok",
+    };
+  }
+
+  @Post("/:userId/cart/remove")
+  @HttpCode(HttpStatus.CREATED)
+  async removeToCart(
+    @Param("userId") userId: number,
+    @Body()
+    body: {
+      productId: number;
+      removeCartItemData: RemoveCartItemDto;
+    },
+  ) {
+    const { removeCartItemData, productId } = body;
+    await this.cartItemService.removeOne(
+      { size: removeCartItemData.size },
+      userId,
+      productId,
+    );
 
     return {
       status: "ok",
