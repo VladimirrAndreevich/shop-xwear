@@ -6,7 +6,6 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  OneToOne,
 } from "typeorm";
 
 @Entity("cart_items")
@@ -14,8 +13,8 @@ export class CartItem {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Product)
-  @JoinColumn({ name: "product_id" })
+  @ManyToOne(() => Product, (product) => product.id)
+  // @JoinColumn({ name: "product_id" })
   product: Product;
 
   @Column({ name: "title", type: "varchar", nullable: false })

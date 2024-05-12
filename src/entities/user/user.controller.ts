@@ -22,8 +22,6 @@ import { AuthService } from "@services/auth/auth.service";
 import { JwtAuthGuard } from "src/guards/jwt-auth.guard";
 import { CartItemService } from "@entities/cartItem/cartItem.service";
 import { ProductService } from "@entities/product/product.service";
-import { AddNewItemDto } from "./dto/addNewItem.dto";
-import { CartItem } from "@entities/cartItem/cartItem.entity";
 import { CreateCartItemDto } from "@entities/cartItem/dto/createCartItem.dto";
 @Controller("users")
 export class UserController {
@@ -33,18 +31,6 @@ export class UserController {
     private readonly cartItemService: CartItemService,
     private readonly productService: ProductService,
   ) {}
-
-  // @Get("/:userId/cart")
-  // async getUserCart(@Param("userId") userId: number) {
-  //   console.log(userId);
-  //   const userCart = await this.userService.getUserCart(userId);
-  //   return {
-  //     status: "ok",
-  //     data: {
-  //       cart: userCart,
-  //     },
-  //   };
-  // }
 
   @Get("/:userId/cart")
   async getUserCart(@Param("userId") userId: number) {
