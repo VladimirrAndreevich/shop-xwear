@@ -63,7 +63,7 @@ export class UserController {
     @Param("userId") userId: number,
     @Body() body: CreateCartItemDto,
   ) {
-    await this.cartItemService.createOne(body, userId, 13);
+    await this.cartItemService.createOne(body, userId, 24);
 
     return {
       status: "ok",

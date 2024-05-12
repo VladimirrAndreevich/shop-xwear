@@ -1,14 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CartItem } from "./cartItem.entity";
 import { CreateCartItemDto } from "./dto/createCartItem.dto";
+import { Product } from "@entities/product/product.entity";
 
 @Injectable()
 export class CartItemService {
   constructor(
     @InjectRepository(CartItem)
     private readonly cartItemRepository: Repository<CartItem>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
   ) {}
 
   async createOne(
@@ -16,6 +19,13 @@ export class CartItemService {
     userId: number,
     productId: number,
   ) {
+    const existingProduct = await this.productRepository.findOne({
+      where: { id: productId },
+    });
+    if (!existingProduct) {
+      throw new NotFoundException("Product not found");
+    }
+
     const existingCartItem = await this.cartItemRepository.findOne({
       where: {
         user: {
@@ -29,13 +39,15 @@ export class CartItemService {
 
     if (existingCartItem) {
       existingCartItem.quantity += 1;
+      const newPrice = +existingCartItem.price + +existingProduct.price;
+      existingCartItem.price = newPrice;
       return await this.cartItemRepository.save(existingCartItem);
     } else {
       const newCartItem = {
-        title: createCartItemDto.title,
+        title: existingProduct.title,
         quantity: 1,
         size: createCartItemDto.size,
-        price: createCartItemDto.price,
+        price: existingProduct.price,
         user: { id: userId },
         product: { id: productId },
       };

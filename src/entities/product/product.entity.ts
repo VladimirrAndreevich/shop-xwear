@@ -12,10 +12,16 @@ export class Product {
   @Column({ name: "description", type: "varchar" })
   description: string;
 
-  @Column({ name: "price", type: "int" })
+  @Column({ name: "price", type: "decimal", precision: 10, scale: 3 })
   price: number;
 
-  @Column({ name: "price_discounted", type: "int", nullable: true })
+  @Column({
+    name: "price_discounted",
+    type: "decimal",
+    precision: 10,
+    scale: 3,
+    nullable: true,
+  })
   priceDiscounted: number;
 
   @Column({ name: "main_image", type: "varchar" })

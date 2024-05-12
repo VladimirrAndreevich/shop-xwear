@@ -25,7 +25,7 @@ export class CartItem {
     name: "price",
     type: "decimal",
     precision: 10,
-    scale: 2,
+    scale: 3,
     nullable: false,
   })
   price: number;
