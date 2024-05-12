@@ -4,10 +4,18 @@ import { User } from "./user.entity";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { AuthModule } from "@services/auth/auth.module";
-import { CartModule } from "@entities/cart/cart.module";
+import { CartItemModule } from "@entities/cartItem/cartItem.module";
+import { ProductModule } from "@entities/product/product.module";
+import { CartItem } from "@entities/cartItem/cartItem.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), AuthModule, CartModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([CartItem]),
+    AuthModule,
+    CartItemModule,
+    ProductModule,
+  ],
   controllers: [UserController],
   providers: [UserService],
 })

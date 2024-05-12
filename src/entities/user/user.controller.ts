@@ -20,25 +20,53 @@ import { compare } from "bcrypt";
 import { ForbiddenException } from "@helpers/exceptions";
 import { AuthService } from "@services/auth/auth.service";
 import { JwtAuthGuard } from "src/guards/jwt-auth.guard";
-import { CartService } from "@entities/cart/cart.service";
-
+import { CartItemService } from "@entities/cartItem/cartItem.service";
+import { ProductService } from "@entities/product/product.service";
+import { AddNewItemDto } from "./dto/addNewItem.dto";
+import { CartItem } from "@entities/cartItem/cartItem.entity";
+import { CreateCartItemDto } from "@entities/cartItem/dto/createCartItem.dto";
 @Controller("users")
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
-    private readonly cartService: CartService,
+    private readonly cartItemService: CartItemService,
+    private readonly productService: ProductService,
   ) {}
+
+  // @Get("/:userId/cart")
+  // async getUserCart(@Param("userId") userId: number) {
+  //   console.log(userId);
+  //   const userCart = await this.userService.getUserCart(userId);
+  //   return {
+  //     status: "ok",
+  //     data: {
+  //       cart: userCart,
+  //     },
+  //   };
+  // }
 
   @Get("/:userId/cart")
   async getUserCart(@Param("userId") userId: number) {
-    console.log(userId);
-    const userCart = await this.cartService.getUserCart(userId);
+    const userCart = await this.cartItemService.getAllCartItems(userId);
     return {
       status: "ok",
       data: {
-        userCart,
+        cart: userCart,
       },
+    };
+  }
+
+  @Post("/:userId/cart/add")
+  @HttpCode(HttpStatus.CREATED)
+  async addToCart(
+    @Param("userId") userId: number,
+    @Body() body: CreateCartItemDto,
+  ) {
+    await this.cartItemService.createOne(body, userId, 13);
+
+    return {
+      status: "ok",
     };
   }
 

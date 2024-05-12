@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { CartItem } from "@entities/cartItem/cartItem.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("users")
 export class User {
@@ -16,4 +17,9 @@ export class User {
 
   @Column({ name: "name_first", type: "varchar", nullable: true })
   nameFirst: string;
+
+  @OneToMany(() => CartItem, (cartItem) => cartItem.user, {
+    onDelete: "CASCADE",
+  })
+  cart: CartItem[];
 }

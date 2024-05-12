@@ -26,7 +26,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post("/")
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
     FileInterceptor("image", getMulterOptions("images/products")),
   )

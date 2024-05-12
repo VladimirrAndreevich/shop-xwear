@@ -6,6 +6,7 @@ import { genSalt, hash } from "bcrypt";
 import { User } from "./user.entity";
 import { RegisterUserDto } from "./dto/registerUser.dto";
 import { UpdateUserDto } from "./dto/updateUser.dto";
+import { CartItem } from "@entities/cartItem/cartItem.entity";
 // import { UpdateUserDto } from "./dto/updateUser.dto";
 // import { RegisterUserDto } from "./dto/registerUser.dto";
 
@@ -13,6 +14,8 @@ import { UpdateUserDto } from "./dto/updateUser.dto";
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(CartItem)
+    private readonly cartItemRepository: Repository<CartItem>,
   ) {}
 
   availableFields = ["nameFirst", "email", "login"];
@@ -38,6 +41,7 @@ export class UserService {
     const newUser = this.userRepository.create({
       ...userData,
       password: hashedPassword,
+      cart: [],
     });
 
     return await this.userRepository.save(newUser);
@@ -67,4 +71,49 @@ export class UserService {
       where: [{ login: loginOrEmail }, { email: loginOrEmail }],
     });
   }
+
+  async getUserCart(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: {
+        cart: true,
+      },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user.cart;
+  }
+
+  // async addItemCart(userId: number, item: CartItem) {
+  //   const user = await this.userRepository.findOne({ where: { id: userId } });
+
+  //   if (!user.cart) {
+  //     user.cart = [];
+  //   }
+
+  //   user.cart.push(item);
+
+  //   await this.cartItemRepository.create(item);
+  //   console.log(user.cart);
+
+  //   return await this.userRepository.create(user);
+  // }
+
+  // async addItemCart(userId: number, item: CartItem) {
+  //   const user = await this.userRepository.findOne({ where: { id: userId } });
+
+  //   if (!user.cart) {
+  //     user.cart = [];
+  //   }
+
+  //   user.cart.push(item);
+
+  //   const newItem = await this.cartItemRepository.create(item);
+  //   await this.cartItemRepository.save(newItem);
+
+  //   return await this.userRepository.update({ id: userId }, { cart: user.car });
+  // }
 }
