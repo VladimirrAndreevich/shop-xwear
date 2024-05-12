@@ -7,6 +7,7 @@ import { AuthModule } from "@services/auth/auth.module";
 import { CartItemModule } from "@entities/cartItem/cartItem.module";
 import { ProductModule } from "@entities/product/product.module";
 import { CartItem } from "@entities/cartItem/cartItem.entity";
+import { RedisModule } from "@services/redis/redis.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CartItem } from "@entities/cartItem/cartItem.entity";
     AuthModule,
     CartItemModule,
     ProductModule,
+    RedisModule,
   ],
   controllers: [UserController],
   providers: [UserService],

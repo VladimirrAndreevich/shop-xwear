@@ -10,6 +10,8 @@ import {
   Delete,
   Put,
   UseGuards,
+  Req,
+  HttpException,
 } from "@nestjs/common";
 
 import { UserService } from "./user.service";
@@ -24,6 +26,7 @@ import { CartItemService } from "@entities/cartItem/cartItem.service";
 import { ProductService } from "@entities/product/product.service";
 import { CreateCartItemDto } from "@entities/cartItem/dto/createCartItem.dto";
 import { RemoveCartItemDto } from "@entities/cartItem/dto/removeCartItem.dto";
+import { RedisService } from "@services/redis/redis.service";
 @Controller("users")
 export class UserController {
   constructor(
@@ -31,10 +34,14 @@ export class UserController {
     private readonly authService: AuthService,
     private readonly cartItemService: CartItemService,
     private readonly productService: ProductService,
+    private readonly redis: RedisService,
   ) {}
 
-  @Get("/:userId/cart")
-  async getUserCart(@Param("userId") userId: number) {
+  @Get("/cart")
+  @UseGuards(JwtAuthGuard)
+  async getUserCart(@Req() req) {
+    const userId = (await this.getUserIdByToken(req)).userId;
+
     const userCart = await this.cartItemService.getAllCartItems(userId);
     return {
       status: "ok",
@@ -44,16 +51,19 @@ export class UserController {
     };
   }
 
-  @Post("/:userId/cart/add")
+  @Post("/cart/add")
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async addToCart(
-    @Param("userId") userId: number,
+    @Req() req,
     @Body()
     body: {
       productId: number;
       createCartItemData: CreateCartItemDto;
     },
   ) {
+    const userId = (await this.getUserIdByToken(req)).userId;
+
     const { createCartItemData, productId } = body;
     await this.cartItemService.createOne(
       { size: createCartItemData.size },
@@ -66,16 +76,19 @@ export class UserController {
     };
   }
 
-  @Post("/:userId/cart/remove")
+  @Post("/cart/remove")
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async removeToCart(
-    @Param("userId") userId: number,
+    @Req() req,
     @Body()
     body: {
       productId: number;
       removeCartItemData: RemoveCartItemDto;
     },
   ) {
+    const userId = (await this.getUserIdByToken(req)).userId;
+
     const { removeCartItemData, productId } = body;
     await this.cartItemService.removeOne(
       { size: removeCartItemData.size },
@@ -135,6 +148,19 @@ export class UserController {
   async getAllUsers() {
     const users = await this.userService.getAll();
     return { status: "ok", data: users };
+  }
+
+  async getUserIdByToken(req: any) {
+    const token = req.headers.authorization || "";
+    if (!token.startsWith("Bearer ")) {
+      throw new HttpException(
+        "Invalid or missing token",
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const jwtToken = token.split("Bearer ")[1];
+
+    return await this.redis.get(jwtToken);
   }
 
   @Get("/check-auth")
