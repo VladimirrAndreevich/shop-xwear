@@ -43,11 +43,13 @@ export class UserController {
     const userId = (await this.getUserIdByToken(req)).userId;
 
     const userCart = await this.cartItemService.getAllCartItems(userId);
+    const total = userCart?.reduce((accumulator, currentValue) => {
+      return +accumulator + +currentValue.quantity;
+    }, 0);
     return {
       status: "ok",
-      data: {
-        cart: userCart,
-      },
+      cart: userCart,
+      total,
     };
   }
 

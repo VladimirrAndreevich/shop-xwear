@@ -96,9 +96,9 @@ export class CartItemService {
   async getAllCartItems(userId: number) {
     return await this.cartItemRepository.find({
       where: { user: { id: userId } },
-      // relations: {
-      //   product: true,
-      // },
+      relations: {
+        product: true,
+      },
     });
   }
 }

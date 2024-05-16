@@ -12,11 +12,12 @@ import {
   Query,
   Res,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from "@nestjs/common";
 import { Response } from "express";
 import { ProductService } from "./product.service";
-import { FileInterceptor } from "@nestjs/platform-express";
+import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { getMulterOptions, renameUploadedFile } from "@helpers/fileUploader";
 import { PRODUCTS_IMAGES_FOLDER_PATH } from "@consts/storagePaths";
 import { E_Type } from "./product.enum";
@@ -28,21 +29,57 @@ export class ProductController {
   @Post("/")
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
-    FileInterceptor("image", getMulterOptions("images/products")),
+    FileInterceptor("mainImage", getMulterOptions("images/products")),
   )
   async createProduct(
     @Body() body: any,
-    @UploadedFile() image: Express.Multer.File,
+    @UploadedFile() mainImage: Express.Multer.File,
   ) {
     const renamedFilename = renameUploadedFile(
-      image.filename,
+      mainImage.filename,
       PRODUCTS_IMAGES_FOLDER_PATH,
     );
-    await this.productService.createOne({
+
+    const newProduct = {
       ...body,
+      price: +body.price,
       isFavorite: body.isFavorite === "true" ? true : false,
-      image: renamedFilename,
+      mainImage: renamedFilename,
+    };
+    console.log(newProduct);
+
+    await this.productService.createOne(newProduct);
+    return { status: "ok" };
+  }
+
+  @Post("/test")
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FilesInterceptor("images", 5, getMulterOptions("images/products")),
+  )
+  async createProductTest(
+    @Body() body: any,
+    @UploadedFiles() images: Express.Multer.File[],
+  ) {
+    const renamedFilenamesImages: string[] = [];
+    images.map((item) => {
+      const renamedFilename = renameUploadedFile(
+        item.filename,
+        PRODUCTS_IMAGES_FOLDER_PATH,
+      );
+      renamedFilenamesImages.push(renamedFilename);
     });
+
+    const newProduct = {
+      ...body,
+      price: +body.price,
+      isFavorite: body.isFavorite === "true" ? true : false,
+      mainImage: renamedFilenamesImages[0],
+      images: renamedFilenamesImages.slice(1),
+    };
+    console.log(renamedFilenamesImages);
+
+    await this.productService.createOne(newProduct);
     return { status: "ok" };
   }
 
