@@ -128,6 +128,13 @@ export class AdminController {
     };
   }
 
+  @Post("/check-auth")
+  @HttpCode(HttpStatus.ACCEPTED)
+  @UseGuards(RoleGuard(E_Role.SuperAdmin))
+  async checkAuth() {
+    return { status: "ok" };
+  }
+
   @Post("/register")
   @HttpCode(HttpStatus.CREATED)
   async registerIndividual(@Body() body: RegisterDto) {

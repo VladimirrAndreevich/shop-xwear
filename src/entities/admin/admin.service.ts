@@ -1,9 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import bcrypt from "bcrypt";
+import { hash } from "bcrypt";
 
-import { AuthService } from "@services/auth/auth.service";
 import { Admin } from "./admin.entity";
 import RegisterDto from "./dto/register.dto";
 
@@ -32,7 +31,7 @@ export class AdminService {
   }
 
   async createAdmin(body: RegisterDto): Promise<Admin> {
-    body.password = await bcrypt.hash(body.password, 1);
+    body.password = await hash(body.password, 1);
     const newAdmin = this.adminRepository.create(body);
     return await this.adminRepository.save(newAdmin);
   }
