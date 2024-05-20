@@ -1,8 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import {
+  Between,
+  FindOperator,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from "typeorm";
 import { Product } from "./product.entity";
 import { E_Type } from "./product.enum";
+import { FilterBodyReq } from "./types";
 
 @Injectable()
 export class ProductService {
@@ -38,6 +45,36 @@ export class ProductService {
     return await this.productRepository.findAndCount({
       where: {
         type,
+      },
+    });
+  }
+
+  async getAllByTypeAndFilter(
+    type: E_Type,
+    body: FilterBodyReq,
+  ): Promise<[Product[], number]> {
+    let additionalFilter: { price: FindOperator<number>; color?: string };
+    if (body.max && body.min) {
+      additionalFilter = {
+        price: Between(body.min, body.max),
+      };
+    } else if (body.max) {
+      additionalFilter = {
+        price: LessThanOrEqual(body.max),
+      };
+    } else if (body.min) {
+      additionalFilter = {
+        price: MoreThanOrEqual(body.min),
+      };
+    }
+    if (body.color) {
+      additionalFilter = { ...additionalFilter, color: body.color };
+    }
+
+    return await this.productRepository.findAndCount({
+      where: {
+        type,
+        ...additionalFilter,
       },
     });
   }

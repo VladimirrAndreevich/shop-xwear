@@ -13,6 +13,7 @@ import {
   Res,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { Response } from "express";
@@ -21,6 +22,9 @@ import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { getMulterOptions, renameUploadedFile } from "@helpers/fileUploader";
 import { PRODUCTS_IMAGES_FOLDER_PATH } from "@consts/storagePaths";
 import { E_Type } from "./product.enum";
+import { RoleGuard } from "@guards/role.guard";
+import { E_Role } from "@entities/role/role.enum";
+import { FilterBodyReq } from "./types";
 
 @Controller("products")
 export class ProductController {
@@ -46,7 +50,7 @@ export class ProductController {
       isFavorite: body.isFavorite === "true" ? true : false,
       mainImage: renamedFilename,
     };
-    console.log(newProduct);
+    // console.log(newProduct);
 
     await this.productService.createOne(newProduct);
     return { status: "ok" };
@@ -77,7 +81,7 @@ export class ProductController {
       mainImage: renamedFilenamesImages[0],
       images: renamedFilenamesImages.slice(1),
     };
-    console.log(renamedFilenamesImages);
+    // console.log(renamedFilenamesImages);
 
     await this.productService.createOne(newProduct);
     return { status: "ok" };
@@ -122,6 +126,27 @@ export class ProductController {
     });
   }
 
+  @Post("/by-type?")
+  @HttpCode(HttpStatus.OK)
+  async getAllProductsByTypeFilter(
+    @Query("type") type: E_Type,
+    @Res() res: Response,
+    @Body() body: FilterBodyReq,
+  ) {
+    const products = await this.productService.getAllByTypeAndFilter(
+      type,
+      body,
+    );
+
+    return res.send({
+      status: "ok",
+      data: {
+        products: products[0],
+        amount: products[1],
+      },
+    });
+  }
+
   // @Get("/favorites")
   // @HttpCode(HttpStatus.OK)
   // async getAllProducts(@Res() res: Response) {
@@ -142,6 +167,7 @@ export class ProductController {
 
   @Put("/:id")
   @HttpCode(HttpStatus.OK)
+  @UseGuards(RoleGuard(E_Role.SuperAdmin))
   async updateProduct(
     @Param("id", ParseIntPipe) id: number,
     @Body() body: any,
@@ -152,6 +178,7 @@ export class ProductController {
 
   @Delete("/:id")
   @HttpCode(HttpStatus.OK)
+  @UseGuards(RoleGuard(E_Role.SuperAdmin))
   async deleteProduct(@Param("id", ParseIntPipe) id: number) {
     this.productService.deleteProduct(id);
     return { status: "ok" };

@@ -12,6 +12,9 @@ export class Product {
   @Column({ name: "description", type: "varchar" })
   description: string;
 
+  @Column({ name: "color", type: "varchar", nullable: true })
+  color: string;
+
   @Column({ name: "price", type: "decimal" })
   price: number;
 
