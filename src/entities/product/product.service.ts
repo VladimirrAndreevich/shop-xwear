@@ -19,7 +19,11 @@ export class ProductService {
   }
 
   async getAll(): Promise<Product[]> {
-    return await this.productRepository.find();
+    return await this.productRepository.find({
+      order: {
+        id: "ASC",
+      },
+    });
   }
 
   async getAllFavorites(): Promise<Product[]> {
