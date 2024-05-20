@@ -23,8 +23,6 @@ export class CartItem {
   @Column({
     name: "price",
     type: "decimal",
-    precision: 10,
-    scale: 3,
     nullable: false,
   })
   price: number;
