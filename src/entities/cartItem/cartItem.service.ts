@@ -40,8 +40,22 @@ export class CartItemService {
     });
     if (existingCartItem && existingCartItem.quantity !== 1) {
       existingCartItem.quantity -= 1;
-      const newPrice = +existingCartItem.price - +existingProduct.price;
+      let newPrice = +existingCartItem.price;
+
+      if (existingProduct.priceDiscounted) {
+        newPrice = +newPrice - +existingProduct.priceDiscounted;
+      } else {
+        newPrice = +newPrice - +existingProduct.price;
+      }
+
       existingCartItem.price = newPrice;
+
+      if (existingProduct.priceDiscounted) {
+        existingCartItem.discount =
+          +existingCartItem.discount -
+          (+existingProduct.price - +existingProduct.priceDiscounted);
+      }
+
       return await this.cartItemRepository.save(existingCartItem);
     } else if (existingCartItem && existingCartItem.quantity === 1) {
       return await this.cartItemRepository.remove(existingCartItem);
@@ -76,17 +90,41 @@ export class CartItemService {
 
     if (existingCartItem) {
       existingCartItem.quantity += 1;
-      const newPrice = +existingCartItem.price + +existingProduct.price;
+      let newPrice = +existingCartItem.price;
+      if (existingProduct.priceDiscounted) {
+        newPrice += +existingProduct.priceDiscounted;
+      } else {
+        newPrice += +existingProduct.price;
+      }
       existingCartItem.price = newPrice;
+
+      if (existingCartItem.discount && existingProduct.priceDiscounted) {
+        existingCartItem.discount =
+          +existingCartItem.discount +
+          +existingProduct.price -
+          +existingProduct.priceDiscounted;
+      } else if (existingProduct.priceDiscounted) {
+        existingCartItem.discount =
+          +existingProduct.price - +existingProduct.priceDiscounted;
+      }
+
       return await this.cartItemRepository.save(existingCartItem);
     } else {
+      const newPrice = existingProduct.priceDiscounted
+        ? existingProduct.priceDiscounted
+        : existingProduct.price;
+
+      const newDiscount = existingProduct.priceDiscounted
+        ? +existingProduct.price - +existingProduct.priceDiscounted
+        : null;
       const newCartItem = {
         title: existingProduct.title,
         quantity: 1,
         size: createCartItemDto.size,
-        price: existingProduct.price,
+        price: newPrice,
         user: { id: userId },
         product: { id: productId },
+        discount: newDiscount,
       };
 
       return await this.cartItemRepository.save(newCartItem);

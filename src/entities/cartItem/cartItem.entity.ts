@@ -21,6 +21,13 @@ export class CartItem {
   title: string;
 
   @Column({
+    name: "discount",
+    type: "decimal",
+    nullable: true,
+  })
+  discount: number;
+
+  @Column({
     name: "price",
     type: "decimal",
     nullable: false,
