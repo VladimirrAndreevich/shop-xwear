@@ -139,4 +139,25 @@ export class CartItemService {
       },
     });
   }
+
+  async getAllCartItemsByOrder(orderId: number) {
+    return await this.cartItemRepository.find({
+      where: { order: { id: orderId } },
+      relations: {
+        product: true,
+      },
+    });
+  }
+
+  async transferToOrder(userId: number, orderId: number) {
+    const cart = await this.cartItemRepository.find({
+      where: { user: { id: userId } },
+    });
+
+    const newCart = cart.map((item) => {
+      return { ...item, user: { id: null }, order: { id: orderId } };
+    });
+
+    return await this.cartItemRepository.save(newCart);
+  }
 }

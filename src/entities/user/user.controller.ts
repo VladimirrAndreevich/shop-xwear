@@ -27,6 +27,8 @@ import { ProductService } from "@entities/product/product.service";
 import { CreateCartItemDto } from "@entities/cartItem/dto/createCartItem.dto";
 import { RemoveCartItemDto } from "@entities/cartItem/dto/removeCartItem.dto";
 import { RedisService } from "@services/redis/redis.service";
+import { OrderService } from "@entities/order/order.service";
+import { CreateOrderDto } from "@entities/order/dto/createOrder.dto";
 @Controller("users")
 export class UserController {
   constructor(
@@ -35,6 +37,7 @@ export class UserController {
     private readonly cartItemService: CartItemService,
     private readonly productService: ProductService,
     private readonly redis: RedisService,
+    private readonly orderService: OrderService,
   ) {}
 
   @Get("/cart")
@@ -170,6 +173,33 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   async checkAuth() {
     return { status: "ok" };
+  }
+
+  @Post("/order/create")
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard)
+  async createOrder(
+    @Req() req,
+    @Body()
+    body: CreateOrderDto,
+  ) {
+    const userId = (await this.getUserIdByToken(req)).userId;
+    const order = await this.orderService.createOne(body, userId);
+    await this.cartItemService.transferToOrder(userId, order.id);
+
+    return { status: "ok" };
+  }
+
+  @Post("/orders")
+  @UseGuards(JwtAuthGuard)
+  async getAllOrders(@Req() req) {
+    const userId = (await this.getUserIdByToken(req)).userId;
+    const userOrders = await this.orderService.getAllOrders(userId);
+
+    return {
+      status: "ok",
+      orders: userOrders,
+    };
   }
 
   @Get("/:id")

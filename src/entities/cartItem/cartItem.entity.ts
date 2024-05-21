@@ -1,3 +1,4 @@
+import { Order } from "@entities/order/order.entity";
 import { Product } from "@entities/product/product.entity";
 import { User } from "@entities/user/user.entity";
 import {
@@ -43,4 +44,8 @@ export class CartItem {
   @ManyToOne(() => User, (user) => user.cart)
   @JoinColumn({ name: "user_id" })
   user: User;
+
+  @ManyToOne(() => Order, (order) => order.cart)
+  @JoinColumn({ name: "order_id" })
+  order: Order;
 }
