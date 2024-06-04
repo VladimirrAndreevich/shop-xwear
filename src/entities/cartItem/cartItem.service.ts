@@ -134,6 +134,9 @@ export class CartItemService {
   async getAllCartItems(userId: number) {
     return await this.cartItemRepository.find({
       where: { user: { id: userId } },
+      order: {
+        id: "ASC",
+      },
       relations: {
         product: true,
       },

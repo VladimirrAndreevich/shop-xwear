@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -42,4 +43,11 @@ export class Order {
   @ManyToOne(() => User, (user) => user.cart)
   @JoinColumn({ name: "user_id" })
   user: User;
+
+  @CreateDateColumn({
+    name: "created_at",
+    type: "timestamp",
+    default: () => "CURRENT_TIMESTAMP(6)",
+  })
+  createdAt: Date;
 }

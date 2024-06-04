@@ -30,4 +30,23 @@ export class OrderService {
       },
     });
   }
+
+  async getAllOrdersForAdmin() {
+    return await this.orderRepository.find({
+      relations: {
+        cart: true,
+        user: true,
+      },
+    });
+  }
+
+  async updateStatus(orderId: number, newStatus: E_OrderStatus) {
+    const existingOrder = await this.orderRepository.findOne({
+      where: { id: orderId },
+    });
+
+    existingOrder.status = newStatus;
+
+    return await this.orderRepository.save(existingOrder);
+  }
 }

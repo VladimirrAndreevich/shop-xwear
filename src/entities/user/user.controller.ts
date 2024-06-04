@@ -29,6 +29,9 @@ import { RemoveCartItemDto } from "@entities/cartItem/dto/removeCartItem.dto";
 import { RedisService } from "@services/redis/redis.service";
 import { OrderService } from "@entities/order/order.service";
 import { CreateOrderDto } from "@entities/order/dto/createOrder.dto";
+import { RoleGuard } from "@guards/role.guard";
+import { E_Role } from "@entities/role/role.enum";
+import { E_OrderStatus } from "@entities/order/order.enum";
 @Controller("users")
 export class UserController {
   constructor(
@@ -199,6 +202,31 @@ export class UserController {
     return {
       status: "ok",
       orders: userOrders,
+    };
+  }
+  @Post("/orders/admin")
+  @UseGuards(RoleGuard(E_Role.SuperAdmin))
+  async getAllOrdersForAdmin() {
+    const orders = await this.orderService.getAllOrdersForAdmin();
+
+    return {
+      status: "ok",
+      orders,
+    };
+  }
+  @Post("/orders/admin/update")
+  @UseGuards(RoleGuard(E_Role.SuperAdmin))
+  async updateOrderStatus(
+    @Body()
+    body: {
+      orderId: number;
+      newStatus: E_OrderStatus;
+    },
+  ) {
+    await this.orderService.updateStatus(body.orderId, body.newStatus);
+
+    return {
+      status: "ok",
     };
   }
 
