@@ -52,7 +52,9 @@ export class ProductService {
   async getAllByTypeAndFilter(
     type: E_Type,
     body: FilterBodyReq,
-  ): Promise<[Product[], number]> {
+    skip: number | undefined,
+    take: number | undefined,
+  ): Promise<Product[]> {
     let additionalFilter: { price: FindOperator<number>; color?: string };
     if (body.max && body.min) {
       additionalFilter = {
@@ -71,11 +73,13 @@ export class ProductService {
       additionalFilter = { ...additionalFilter, color: body.color };
     }
 
-    return await this.productRepository.findAndCount({
+    return await this.productRepository.find({
       where: {
         type,
         ...additionalFilter,
       },
+      skip,
+      take,
     });
   }
 

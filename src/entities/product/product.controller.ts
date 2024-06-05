@@ -130,19 +130,25 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   async getAllProductsByTypeFilter(
     @Query("type") type: E_Type,
+    @Query("skip") skip: number,
+    @Query("take") take: number,
     @Res() res: Response,
     @Body() body: FilterBodyReq,
   ) {
     const products = await this.productService.getAllByTypeAndFilter(
       type,
       body,
+      skip,
+      take,
     );
+
+    console.log(`skip: ${skip} take: ${take}`);
 
     return res.send({
       status: "ok",
       data: {
-        products: products[0],
-        amount: products[1],
+        products: products,
+        amount: products.length,
       },
     });
   }
