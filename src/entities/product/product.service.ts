@@ -10,12 +10,15 @@ import {
 import { Product } from "./product.entity";
 import { E_Type } from "./product.enum";
 import { FilterBodyReq } from "./types";
+import { CartItem } from "@entities/cartItem/cartItem.entity";
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(CartItem)
+    private readonly cartItemRepository: Repository<CartItem>,
   ) {}
 
   async createOne(productData: any) {
@@ -54,7 +57,7 @@ export class ProductService {
     body: FilterBodyReq,
     skip: number | undefined,
     take: number | undefined,
-  ): Promise<Product[]> {
+  ): Promise<[Product[], number]> {
     let additionalFilter: { price: FindOperator<number>; color?: string };
     if (body.max && body.min) {
       additionalFilter = {
@@ -73,7 +76,7 @@ export class ProductService {
       additionalFilter = { ...additionalFilter, color: body.color };
     }
 
-    return await this.productRepository.find({
+    return await this.productRepository.findAndCount({
       where: {
         type,
         ...additionalFilter,
@@ -92,6 +95,15 @@ export class ProductService {
   }
 
   async deleteProduct(id: number) {
-    return await this.productRepository.delete(id);
+    const cartItems = await this.cartItemRepository.find({
+      where: { product: { id } },
+    });
+    if (cartItems.length > 0) {
+      await this.cartItemRepository.delete(cartItems.map((ci) => ci.id));
+    }
+
+    const resultDeletingProduct = await this.productRepository.delete(id);
+
+    return resultDeletingProduct;
   }
 }

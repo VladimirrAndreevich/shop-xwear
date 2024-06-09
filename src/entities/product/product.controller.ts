@@ -147,8 +147,8 @@ export class ProductController {
     return res.send({
       status: "ok",
       data: {
-        products: products,
-        amount: products.length,
+        products: products[0],
+        amount: products[1],
       },
     });
   }
