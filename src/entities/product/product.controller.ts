@@ -87,6 +87,38 @@ export class ProductController {
     return { status: "ok" };
   }
 
+  @Post("/create")
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FilesInterceptor("images", 5, getMulterOptions("images/products")),
+  )
+  async createProductTT(
+    @Body() body: any,
+    @UploadedFiles() images: Express.Multer.File[],
+  ) {
+    const renamedFilenamesImages: string[] = [];
+    images.map((item) => {
+      const renamedFilename = renameUploadedFile(
+        item.filename,
+        PRODUCTS_IMAGES_FOLDER_PATH,
+      );
+      renamedFilenamesImages.push(renamedFilename);
+    });
+
+    const newProduct = {
+      ...body,
+      price: +body.price,
+      isFavorite: body.isFavorite === "true" ? true : false,
+      mainImage: renamedFilenamesImages[0],
+      images: renamedFilenamesImages.slice(1),
+    };
+    // console.log(renamedFilenamesImages);
+
+    await this.productService.createOne(newProduct);
+
+    return { status: "ok" };
+  }
+
   @Get("/")
   @HttpCode(HttpStatus.OK)
   async getAllProducts(@Res() res: Response) {

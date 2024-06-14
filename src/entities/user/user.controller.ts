@@ -112,6 +112,20 @@ export class UserController {
   @Post("/register")
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() body: RegisterUserDto) {
+    const userWithEmail = await this.userService.getUserByLoginOrEmail(
+      body.email,
+    );
+
+    if (userWithEmail) {
+      throw new HttpException(
+        {
+          status: "error",
+          message: "User with such email exists",
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const user = await this.userService.createOne(body);
 
     const jwt = await this.authService.setSession({
